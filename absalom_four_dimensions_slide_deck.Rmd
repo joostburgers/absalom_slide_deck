@@ -63,11 +63,11 @@ event_length <- absalom_event_sentences %>%
 ```
 
 ```{r read_all_absalom_events}
-absalom_all_events <- read_csv("absalom_all_events_2021_5_11.csv")
+absalom_all_events <- read_csv("data/absalom_all_events_2021_5_11.csv")
 ```
 
 ```{r event_dates}
-aa_event_dates <- read_csv("absalom_event_dates_05_15.csv")
+aa_event_dates <- read_csv("data/absalom_event_dates_05_15.csv")
 
 aa_event_dates <- aa_event_dates %>% 
                   mutate(StartDate=str_trim(StartDate)) %>% 
@@ -77,7 +77,7 @@ aa_event_dates <- aa_event_dates %>%
 ```
 
 ```{r chapter_numbers}
-chapter_numbers <- read_csv("chapter_numbers.csv")
+chapter_numbers <- read_csv("data/chapter_numbers.csv")
 ```
 
 ```{r clean_up_absalom_events}
@@ -93,14 +93,25 @@ absalom_events_short <- absalom_all_events %>%
   relocate(EndDate, .after = StartDate)
 ```
 
-```{r read_all_DY_events}
-dy_events <- read_csv("full_database_2021_5_11.csv")
+```{r fetch_compact_db}
+dy_events_short <- read_csv("data/compact_database_10_16.csv")
 ```
 
-```{r clean_up_all_events}
-dy_events_short <- dy_events %>%
-  select(1:11, 21:27, 50, 52:54)
+
+```{r read_all_DY_events, eval=FALSE}
+#dy_events <- read_csv("data/full_database_2021_5_11.csv")
 ```
+
+```{r clean_up_all_events, eval=FALSE}
+#dy_events_short <- dy_events %>%
+ # select(1:11, 21:27, 50, 52:54)
+```
+
+```{r, eval=FALSE}
+#write_csv(dy_events_short, "data/compact_database_10_16.csv")
+```
+
+
 
 ```{r load_chart_styling, echo=FALSE}
 #Page styling
@@ -255,7 +266,7 @@ The *Digital Yoknapatawpha* project database contains the demographic data of al
 ## Race 
 > As a reader you have been forced to hunt for a drop of black blood that means everything and nothing. The insanity of racism. - Toni Morrison, *Conversations*
 
-
+Now I stage
 ## Visualization
 
 ```{r plot_demography}
