@@ -37,8 +37,7 @@ library(webshot)
 
 ```{r load_text}
 #Read in the text
-absalom_txt <- as.data.frame(read_file("absalom_cleaned_to_match_4_30_rev4.txt"))
-colnames(absalom_txt) <- "text" 
+absalom_txt <- data_frame(text = read_file("data/absalom_parse_copy_10_16.txt"))
 
 absalom_df <- absalom_txt %>% 
 mutate(text = gsub("[‘’]", "'", text)) %>% 
@@ -47,7 +46,7 @@ mutate(text = gsub("[‘’]", "'", text)) %>%
 ```
 
 ```{r _load_event_sentences}
-absalom_event_sentences <- read_csv("absalom_event_sentences_clean_2021_5_10.csv")
+absalom_event_sentences <- read_csv("data/absalom_event_sentences_clean_2021_5_10.csv")
 
 #This file was created by recomposing the text based on the "First Words" column and matching the text segments with each event using a copy of the text. As this process is quite involved it has been branched out into a separate file: absalom_sentiment_text_processing. Full details on the process can be viewed there.
 
