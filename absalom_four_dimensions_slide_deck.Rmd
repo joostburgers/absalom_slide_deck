@@ -1,0 +1,366 @@
+---
+title: '*Absalom, Absalom!* in Four Dimensions: Characters, Locations, Events, and Language'
+author: "Johannes Burgers"
+output: 
+  revealjs::revealjs_presentation:
+    theme: solarized
+    self_contained: false
+    reveal_plugins: ["menu"]
+    reveal_options:
+      menu:
+        side: right
+---
+
+```{r setup, include=FALSE, message = FALSE, warning=FALSE, error=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning=FALSE, error=FALSE, tidy='styler')
+knitr::knit_engines$set(python = reticulate::eng_python)
+```
+
+```{r load_packages}
+#Data wrangling
+library(tidyverse)
+library(tidytext)
+library(stringr)
+library(lubridate)
+
+#Python interoperability
+library(reticulate)
+
+#Visualization
+library(plotly)
+
+#Output
+library(shiny)
+library(scales)
+library(webshot)
+```
+
+```{r load_text}
+#Read in the text
+absalom_txt <- as.data.frame(read_file("absalom_cleaned_to_match_4_30_rev4.txt"))
+colnames(absalom_txt) <- "text" 
+
+absalom_df <- absalom_txt %>% 
+mutate(text = gsub("[‘’]", "'", text)) %>% 
+              unnest_tokens(text, text) %>% 
+              summarize(text = str_c(text, collapse = " "))
+```
+
+```{r _load_event_sentences}
+absalom_event_sentences <- read_csv("absalom_event_sentences_clean_2021_5_10.csv")
+
+#This file was created by recomposing the text based on the "First Words" column and matching the text segments with each event using a copy of the text. As this process is quite involved it has been branched out into a separate file: absalom_sentiment_text_processing. Full details on the process can be viewed there.
+
+```
+
+```{r global_variables}
+absalom_length <- str_count(absalom_df$text, "\\S+")
+```
+
+```{r absalom_event_word_count}
+event_length <- absalom_event_sentences %>%
+  mutate(event_words = str_count(event_sentence,  "\\S+")) %>%
+  select(EventID, begin_word, end_word, event_sentence, event_words)
+```
+
+```{r read_all_absalom_events}
+absalom_all_events <- read_csv("absalom_all_events_2021_5_11.csv")
+```
+
+```{r event_dates}
+aa_event_dates <- read_csv("absalom_event_dates_05_15.csv")
+
+aa_event_dates <- aa_event_dates %>% 
+                  mutate(StartDate=str_trim(StartDate)) %>% 
+                  mutate(EndDate= str_trim(EndDate)) %>% 
+                  select(EventID, StartDate, EndDate) %>% 
+                  drop_na()
+```
+
+```{r chapter_numbers}
+chapter_numbers <- read_csv("chapter_numbers.csv")
+```
+
+```{r clean_up_absalom_events}
+#The full table is long and hard to work with.
+absalom_events_short <- absalom_all_events %>%
+  select(3:8, 11, 13, 21:28, 34, 50, 52:54) %>%
+  mutate(narrator = str_extract(Summary, "(?<=(SOURCE)).+[^]</p>]")) %>%
+  mutate(narrator = str_replace_all(narrator, ":", "")) %>%
+  left_join(event_length, by = "EventID") %>%
+  left_join(chapter_numbers, by = "PageNumber") %>%
+  left_join(aa_event_dates, by = "EventID") %>%
+  relocate(StartDate, .after = NarrativeStatus) %>%
+  relocate(EndDate, .after = StartDate)
+```
+
+```{r read_all_DY_events}
+dy_events <- read_csv("full_database_2021_5_11.csv")
+```
+
+```{r clean_up_all_events}
+dy_events_short <- dy_events %>%
+  select(1:11, 21:27, 50, 52:54)
+```
+
+```{r load_chart_styling, echo=FALSE}
+#Page styling
+
+#This is where you create your own custom color palette for the traces.
+faulkner_colorway = c("#132C53","#F27A18","#ae0700","#79b473","#38726c","#76bed0","#6b2d5c","#448b2d","#e6d812")
+
+faulkner_colorway_bw = c("#999999", "#777777",	"#555555", "#333333",	
+"#111111")
+
+#This controls the background color for the entire chart. Probably best left white.
+faulkner_paperbackground = c('rgba(255,255,255,0)')
+
+#This controls the background for the plot. Probably best left white.
+faulkner_plotcolor = c('rgba(255,255,255,.3)')
+
+#Margin 
+
+m <- list(l = 50, r = 50, b = 50, t = 50, pad = 4)
+
+#Caption Style
+
+fig_caption <- "font-family: 'Open Sans','Helvetica Neue',Helvetica,Arial,sans-serif; font-weight: normal; font-size:90%"
+
+plot_font <- list(family = "'Playfair Display','Helvetica Neue',Helvetica,Arial,sans-serif",
+  size = 12,
+  color = '#363636')
+```
+
+```{r general_overview}
+#Unique Characters
+unique_characters <- absalom_events_short %>%
+  distinct(CharacterName) %>% 
+  nrow()
+  
+
+
+
+#Characters based on rank
+peripheral_characters <- absalom_events_short %>%
+  filter(PresentMentioned == "Present") %>%
+  distinct(CharacterName, .keep_all = TRUE) %>%
+  count(Rank) %>%
+  mutate(percent = n / sum(n))
+
+#Events in which Judith Sutpen is present
+Judith_events <- absalom_events_short %>%
+  filter(PresentMentioned == "Present") %>%
+  filter(CharacterName == "Judith Sutpen")
+
+#All characters surrounding Judith
+Judith_unique_all <- absalom_events_short %>%
+  semi_join(Judith_events, by = "EventID") %>%
+  filter(PresentMentioned == "Present") %>%
+  distinct(CharacterName, .keep_all = TRUE) %>%
+  filter(CharacterName != "Judith Sutpen")
+
+#All minor and peripheral characters surrounding Judith
+Judith_unique <- Judith_unique_all %>%
+  filter(Rank %in% c("Peripheral", "Minor")) %>%
+  distinct(CharacterName)
+
+#Events in which Clytie Sutpen is present
+Clytie_events <- absalom_events_short %>%
+  filter(PresentMentioned == "Present") %>%
+  filter(CharacterName == "Clytemnestra")
+
+#All characters surrounding Clytie
+Clytie_unique_all <- absalom_events_short %>%
+  semi_join(Clytie_events, by = "EventID") %>%
+  filter(PresentMentioned == "Present") %>%
+  distinct(CharacterName, .keep_all = TRUE) %>%
+  filter(CharacterName != "Clytemnestra") %>% 
+  nrow()
+
+
+#Ratio major minor characters DY
+character_ranks <- dy_events_short %>%
+  filter(PresentMentioned == "Present") %>%
+  distinct(CharacterName, .keep_all = TRUE) %>%
+  count(Rank) %>%
+  mutate(percent = n / sum(n)) %>% 
+  arrange(Rank)
+
+#Events in which Henry Sutpen is present
+Henry_events <- absalom_events_short %>%
+  filter(PresentMentioned == "Present") %>%
+  filter(CharacterName == "Henry Sutpen")
+
+#All characters surrounding Henry
+Henry_unique_all <- absalom_events_short %>%
+  semi_join(Henry_events, by = "EventID") %>%
+  filter(PresentMentioned == "Present") %>%
+  distinct(CharacterName, .keep_all = TRUE) %>%
+  filter(CharacterName != "Henry Sutpen") %>% 
+  nrow()
+
+#Events in which Thomas Sutpen is present
+Thomas_events <- absalom_events_short %>%
+  filter(PresentMentioned == "Present") %>%
+  filter(CharacterName == "Thomas Sutpen")
+
+#All characters surrounding Thomas
+Thomas_unique_all <- absalom_events_short %>%
+  semi_join(Thomas_events, by = "EventID") %>%
+  filter(PresentMentioned == "Present") %>%
+  distinct(CharacterName, .keep_all = TRUE) %>%
+  filter(CharacterName != "Thomas Sutpen") %>% 
+  nrow()
+```
+
+
+```{r black_white_ratios}
+all_characters <- dy_events_short %>%
+  distinct(CharacterName) %>%
+  nrow()
+
+black_white_all <- dy_events_short %>%
+  # filter(SourceTextCode!="AA") %>%
+  distinct(CharacterName, .keep_all = TRUE) %>%
+  count(Race) %>%
+  mutate(percent = n / sum(n))
+```
+
+```{r count_char}
+char_count_AA <- absalom_events_short %>%
+  filter(PresentMentioned == "Present") %>% 
+  distinct(CharacterName, Race) %>%
+  count(Race)  %>%
+  mutate(percent = round(n / sum(n),2)) %>% 
+ mutate(Race = ifelse(Race=="MixedBlackWhite", "Mixed Black White", Race))
+```
+
+
+```{r weight_count}
+weight_count <- absalom_events_short %>%
+  filter(PresentMentioned == "Present") %>%
+ # distinct(EventID, Race, .keep_all = TRUE) %>% 
+  group_by(Race) %>%
+  summarize(word_total = sum(event_words)) %>%
+  mutate(percent = round(word_total / sum(word_total),2)) %>% 
+  mutate(Race = ifelse(Race=="MixedBlackWhite", "Mixed Black White", Race)) %>% 
+  filter(percent >0)
+
+
+```
+
+# Characters
+
+The *Digital Yoknapatawpha* project database contains the demographic data of all of the characters if Faulkner's Yoknapatawpha fictions. Using this data is possible to divide all `r unique_characters` unique characters in *Absalom, Absalom!* into different social groups.
+
+## Race 
+> As a reader you have been forced to hunt for a drop of black blood that means everything and nothing. The insanity of racism. - Toni Morrison, *Conversations*
+
+
+## Visualization
+
+```{r plot_demography}
+
+#, fig.cap="Figure 1: Demography by raw count and by character presence. The image on the left shows what percentage of each type of character are present in the text. The image on the right shows how often they appear."
+
+plot_demography <- plot_ly()
+
+plot_demography <- plot_demography %>% 
+      add_pie(
+      values =  ~char_count_AA$n,
+    labels = ~ char_count_AA$Race,
+    type = 'pie',
+    name = "Character Count",
+    text = paste(char_count_AA$Race, char_count_AA$percent*100, "%"),
+    textinfo = 'text',
+    domain = list(x=c(.1,.45), y = c(.1,.9))
+    #width= 300
+  )
+
+plot_demography <- plot_demography %>% 
+  add_pie(
+        values = ~ weight_count$word_total,
+    labels = ~ weight_count$Race,
+    type = 'pie',
+    name = "Character Appearance",
+    text = paste(weight_count$Race, weight_count$percent*100, "%"),
+    textinfo = 'text',
+    domain = list(x = c(.55,.9), y = c(.1,.9))
+ 
+  )
+
+plot_demography <- plot_demography %>% layout(
+    title = "Character Demography",
+    showlegend = FALSE,
+    colorway = faulkner_colorway,
+    font = plot_font,
+    margin = m,
+    autosize = FALSE,
+    width = 1024,
+    paper_bgcolor = faulkner_paperbackground,
+    plot_bgcolor = faulkner_plotcolor
+    #height = 605
+     # autosize = FALSE
+  )
+
+plot_demography <- plot_demography %>% add_annotations(
+  x = c(.2,.8),
+  y = c(1, 1),
+  xref = 'paper',
+  yref = 'paper',
+  showarrow = FALSE,
+  text = c("Raw Count", "Present in Events"),
+  font = list(size = 14),
+  align = 'left'
+  
+)
+
+plot_demography <-  plot_demography %>%
+  config(
+    toImageButtonOptions = list(
+      format = "svg",
+      width = 1024,
+      height = 605
+    )
+  )
+
+  
+plot_demography
+```
+
+# Locations
+
+## Explainer
+somethings
+
+## Visualization
+
+
+
+
+# Events
+
+## {data-background-video="faulkner_background_text/faulkner_background_text.mp4"}
+
+
+# Language
+
+
+## Second Slide
+- this is a plotly plot
+
+# Language
+
+## Slide 3
+
+## Slide 4
+
+## Slide 5
+
+## Slide 6
+
+## Slide 7
+
+
+
+
