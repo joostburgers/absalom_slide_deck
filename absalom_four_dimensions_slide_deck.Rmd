@@ -1,7 +1,7 @@
 ---
 title: 'Digital Supplement: *Absalom, Absalom!* and the Digital Humanities'
 author: "Johannes Burgers"
-date: "This interactive essay acts as a supplement to the long-form essay available in the *Norton Critical Edition* of *Absalom, Absalom!*. It includes visualizations that are not possible to represent in print, and also functions as a standalone essay that explores *Absalom, Absalom!* along four different axes: Characters, Locations, Events, and Language."
+date: "This interactive essay acts as a supplement to the long-form essay available in the *Norton Critical Edition* of *Absalom, Absalom!*. It includes visualizations that are not possible to represent in print, and also functions as a standalone essay that explores *Absalom, Absalom!* along three different axes: Characters, Events, and Language."
 output: 
   revealjs::revealjs_presentation:
     theme: solarized
@@ -653,10 +653,11 @@ His answer is telling...
 
 ##  {data-background-video="assets/video/faulkner_blackbird.mp4"}
 
-## Plotting the Plot
+## Plotting the Story
 
 Though the plot can be very confusing, it is clear from Faulkner's notes that he had an underlying structure.
 
+This underlying structure is sometimes referred to as the **chronology** or **story**.
 
 ## Story vs. Plot
 
@@ -664,11 +665,11 @@ Often used interchangeable, **story** and **plot** describe two different aspect
 
 . . . 
 
-**plot** - The order of events in which they are told to the reader.
+**Plot** - The order of events in which they are told to the reader.
 
 . . . 
 
-**story** - The order of events as they actually occur. This is also known as **chronology**.
+**Story** - The order of events as they actually occur. This is also known as **chronology**.
 
 ## Sutpen's Story and Plot
 
@@ -717,12 +718,22 @@ Events that are chronologically earlier are lower down, while later events are h
 The **plot** chart shows the events as they are narrated to us, the **story** chart shows the order in which those events happen according to the chronology.
 
 ```{r sutpen_plot_outline}
-sutpen_outline <- tibble(Plot = c(1,6,7), Story =c(6,7,1), Chrono = c(2,3,1), name= c("Sutpen arrives in Jefferson", "Sutpen killed by Jones", "Sutpen born in Virginia"),xoffset = c(100,-100,-100), yoffset = c(-10,-10,10))
+sutpen_outline <-
+  tibble(
+    Plot = c(1, 6, 7),
+    Story = c(6, 7, 1),
+    Chrono = c(2, 3, 1),
+    name = c(
+      "Sutpen arrives in Jefferson",
+      "Sutpen killed by Jones",
+      "Sutpen born in Virginia"
+    ),
+    xoffset = c(100, -100, -100),
+    yoffset = c(-10, -10, 10)
+  )
 
-sutpen_outline <- sutpen_outline %>%  
-                  pivot_longer(1:2, names_to = "series")
-                  
-
+sutpen_outline <- sutpen_outline %>%
+  pivot_longer(1:2, names_to = "series")
 ```
 
 ```{r sutpen_outline_plot, align='center'}
@@ -730,11 +741,19 @@ sutpen_outline_plot <- plot_ly(
   sutpen_outline,
   x = ~ value,
   y = ~ Chrono,
-  text = ~name,
-  textposition = c('top right','top left','bottom left','bottom left','top left','top right'),
+  text = ~ name,
+  textposition = c(
+    'top right',
+    'top left',
+    'bottom left',
+    'bottom left',
+    'top left',
+    'top right'
+  ),
   frame = ~ series,
   type = 'scatter',
-  mode = 'markers+text')
+  mode = 'markers+text'
+)
 
 sutpen_outline_plot <- sutpen_outline_plot %>%
   layout(
@@ -754,31 +773,37 @@ sutpen_outline_plot <- sutpen_outline_plot %>%
     autosize = FALSE,
     width = 640,
     paper_bgcolor = faulkner_paperbackground,
-    plot_bgcolor = 'rgba(255,255,255,0)',
-    modebar = list(
-      bgcolor = faulkner_paperbackground
-         )
+    plot_bgcolor = faulkner_plotcolor,
+    modebar = list(bgcolor = faulkner_paperbackground)
   )
 
 
+sutpen_outline_plot <- sutpen_outline_plot %>%
+  add_annotations(
+    x = 0,
+  y = 0,
+  xref = 'paper',
+  yref = 'paper',
+  yshift = -120,
+  xshift = 40,
+  showarrow = FALSE,
+  text = c("Move the slider between Plot and Story to see the different event orders."),
+  font = list(size = 10)
+    )
 
-sutpen_outline_plot <- sutpen_outline_plot %>% 
-  config(
-      displayModeBar = FALSE
-  )
+sutpen_outline_plot <- sutpen_outline_plot %>%
+  config(displayModeBar = FALSE)
 
-sutpen_outline_plot <- sutpen_outline_plot %>% 
-                       animation_opts(
-    2500, easing = "elastic", redraw = FALSE
-  )
-      
+sutpen_outline_plot <- sutpen_outline_plot %>%
+  animation_opts(2500, easing = "elastic", redraw = FALSE)
+
 
 div(sutpen_outline_plot, align = "center")
 ```
 
 ## Plotting *Absalom, Absalom!*
 
-
+<span style= "font-size: 80%">The **plot** structure chart for *Absalom, Absalom!* is incredibly complex, but the **story** mode reveals the basic structure: Four different narrators reconstruct the story of the Sutpen family many years after it has happened.</span>
 
 ```{r import_annotations}
 #creates a clean csv for export. Not necessary
@@ -791,9 +816,8 @@ div(sutpen_outline_plot, align = "center")
 chrono_ann_import <- read_csv("data/annotations_import_revised.csv")
 
 chrono_ann_import <- chrono_ann_import %>%
-  drop_na(event) %>% 
-  select(OrderWithinPage,event)
-
+  drop_na(event) %>%
+  select(OrderWithinPage, event)
 
 ```
 
@@ -846,15 +870,15 @@ chapters_single <- absalom_chronology_bw %>%
 
 
 
-```{r plot_aa_bw, fig.cap= "Figure 3: Plot Structure of <i>Absalom, Absalom!</i>. Particularly notable, is the repetition of an S pattern throughout. This indicates a similar structure across the chapters."}
+```{r plot_aa_bw}
 plot_aa_bw <- plot_ly(
   absalom_labels,
   x = ~ values,
   y = ~ Narrated,
-  frame = ~Order,
+  frame = ~ Order,
   name = 'Narrated',
-  text = ~event,
-  textposition = ~position,
+  text = ~ event,
+  textposition = ~ position,
   type = 'scatter',
   mode = 'markers+text',
   marker = list(opacity = .5),
@@ -866,11 +890,11 @@ plot_aa_bw <- plot_ly(
     'Chronological Order: %{y}',
     '<br>',
     'Start Date:',
-    absalom_chronology_bw$StartDate,
+    absalom_labels$StartDate,
     '<br>',
     'Summary:',
     '<br>',
-    absalom_chronology_bw$Summary,
+    absalom_labels$Summary,
     '<extra></extra>'
   )
 )
@@ -879,10 +903,10 @@ plot_aa_bw <- plot_aa_bw %>% add_trace(
   x = ~ values,
   y = ~ Told,
   name = 'Told',
-  frame = ~Order,
-    type = 'scatter',
-  text = ~event,
-  textposition = ~position,
+  frame = ~ Order,
+  type = 'scatter',
+  text = ~ event,
+  textposition = ~ position,
   mode = 'markers+text',
   hovertemplate = paste(
     'Page: %{x}',
@@ -892,11 +916,11 @@ plot_aa_bw <- plot_aa_bw %>% add_trace(
     'Chronological Order: %{y}',
     '<br>',
     'Start Date:',
-    absalom_chronology_bw$StartDate,
+    absalom_labels$StartDate,
     '<br>',
     'Summary:',
     '<br>',
-    absalom_chronology_bw$Summary,
+    absalom_labels$Summary,
     '<extra></extra>'
   )
 )
@@ -904,12 +928,11 @@ plot_aa_bw <- plot_aa_bw %>% add_trace(
 plot_aa_bw <- plot_aa_bw %>% add_trace(
   x = ~ values,
   y = ~ Remembered,
-  frame = ~Order,
-  legendgroup = "Other",
-  name = paste('Remembered<br>Hypothesized<br>Narrated+Consciousness'),
+  frame = ~ Order,
+  name = paste('Remembered'),
   type = 'scatter',
-  text = ~event,
-  textposition = ~position,
+  text = ~ event,
+  textposition = ~ position,
   mode = 'markers+text',
   hovertemplate = paste(
     'Page: %{x}',
@@ -919,11 +942,11 @@ plot_aa_bw <- plot_aa_bw %>% add_trace(
     'Chronological Order: %{y}',
     '<br>',
     'Start Date:',
-    absalom_chronology_bw$StartDate,
+    absalom_labels$StartDate,
     '<br>',
     'Summary:',
     '<br>',
-    absalom_chronology_bw$Summary,
+    absalom_labels$Summary,
     '<extra></extra>'
   )
   
@@ -931,14 +954,14 @@ plot_aa_bw <- plot_aa_bw %>% add_trace(
 plot_aa_bw <- plot_aa_bw %>% add_trace(
   x = ~ values,
   y = ~ Hypothesized,
-  frame = ~Order,
+  frame = ~ Order,
   name = 'Hypothesized',
   showlegend = TRUE,
   type = 'scatter',
-  text = ~event,
-  textposition = ~position,
+  text = ~ event,
+  textposition = ~ position,
   mode = 'markers+text',
-   hovertemplate = paste(
+  hovertemplate = paste(
     'Page: %{x}',
     '<br>',
     'Narrative Status: Hypothesized',
@@ -946,23 +969,22 @@ plot_aa_bw <- plot_aa_bw %>% add_trace(
     'Chronological Order: %{y}',
     '<br>',
     'Start Date:',
-    absalom_chronology_bw$StartDate,
+    absalom_labels$StartDate,
     '<br>',
     'Summary:',
     '<br>',
-    absalom_chronology_bw$Summary,
+    absalom_labels$Summary,
     '<extra></extra>'
   )
 )
 plot_aa_bw <- plot_aa_bw %>% add_trace(
   x = ~ values,
   y = ~ NarratedConsciousness,
-  frame = ~Order,
-  legendgroup = "Other",
+  frame = ~ Order,
   name = 'Narrated+Consciousness',
   type = 'scatter',
-  text = ~event,
-  textposition = ~position,
+  text = ~ event,
+  textposition = ~ position,
   mode = 'markers+text',
   hovertemplate = paste(
     'Page: %{x}',
@@ -972,11 +994,11 @@ plot_aa_bw <- plot_aa_bw %>% add_trace(
     'Chronological Order: %{y}',
     '<br>',
     'Start Date:',
-    absalom_chronology_bw$StartDate,
+    absalom_labels$StartDate,
     '<br>',
     'Summary:',
     '<br>',
-    absalom_chronology_bw$Summary,
+    absalom_labels$Summary,
     '<extra></extra>'
   )
 )
@@ -996,80 +1018,358 @@ plot_aa_bw <-  plot_aa_bw %>%
     autosize = FALSE,
     width = 1024,
     height = 480,
-    colorway = faulkner_colorway
+    colorway = faulkner_colorway,
+    font = plot_font,
+    margin = m,
+    paper_bgcolor = faulkner_paperbackground,
+    plot_bgcolor = faulkner_plotcolor,
+    modebar = list(bgcolor = faulkner_paperbackground)
+  )
+plot_aa_bw <-  plot_aa_bw %>%
+ add_annotations(
+    x = 0,
+  y = 0,
+  xref = 'paper',
+  yref = 'paper',
+  yshift = -120,
+  xshift = 40,
+  showarrow = FALSE,
+  text = c("Move the slider between Plot and Story to see the different event orders."),
+  font = list(size = 10)
   )
 
-# plot_aa_bw <- plot_aa_bw %>%
-#   add_annotations(
-#     x = chrono_ann_import$OrderWithinPage,
-#     y = chrono_ann_import$Chrono,
-#     text = chrono_ann_import$event,
-#     xref = "x",
-#     yref = "y",
-#     showarrow = TRUE,
-#     arrowhead = 3,
-#     arrowwidth = 1,
-#     arrowsize = .5,
-#     ax = chrono_ann_import$xoffset,
-#     ay = chrono_ann_import$yoffset,
-#     font = list(color = chrono_ann_import$fontcolor),
-#     bgcolor = chrono_ann_import$bgcolor,
-#     borderpad = 0,
-#     borderwidth = 0
-#   )
-# 
-# plot_aa_bw <- plot_aa_bw %>%
-#   add_annotations(
-#     x = chrono_ann_import_secondary$OrderWithinPage,
-#     y = chrono_ann_import_secondary$Chrono,
-#     text = chrono_ann_import_secondary$event,
-#     xref = "x",
-#     yref = "y",
-#     showarrow = TRUE,
-#     arrowhead = 3,
-#     arrowwidth = 1,
-#     arrowsize = .5,
-#     ax = chrono_ann_import_secondary$xoffset,
-#     ay = chrono_ann_import_secondary$yoffset,
-#     font = list(color = "rgba(255,255,255,0)"),
-#     bgcolor = "rgba(255,255,255,0)",
-#     borderpad = 0,
-#     borderwidth = 0
-#   )
+ 
 
-plot_aa_bw <-  plot_aa_bw %>% 
-   config(
-      displayModeBar = FALSE
-  )
-  
+plot_aa_bw <-  plot_aa_bw %>%
+  config(displayModeBar = FALSE)
 
-plot_aa_bw <- plot_aa_bw %>% 
-                       animation_opts(
-    3500, easing = "elastic", redraw = FALSE
-  )
-      
+
+plot_aa_bw <- plot_aa_bw %>%
+  animation_opts(3500, easing = "elastic", redraw = FALSE)
 
 div(plot_aa_bw, align = "center")
 
+```
+## Pattern Recognition 
+
+<span style = "font-size:80%">Each narrator actually follows a similar pattern. They start the narration in the "deep" past and work their way into the present. They often repeat similar details, but leave out crucial information.</span>
+
+```{r}
+absalom_labels_early_chapters <- absalom_events_short %>%
+  distinct(EventID, .keep_all = TRUE) %>%
+  select(1:8, 10, 28:29) %>%
+  filter(chapter<4) %>% 
+  mutate(Summary = str_remove(Summary, '<p>')) %>%
+  mutate(Summary = str_remove(Summary, '</p>')) %>%
+  mutate(Summary = gsub("((\\S+\\s){7})", "\\1<br> ", Summary)) %>%
+  left_join(chrono_ann_import) %>% 
+  mutate(Plot = row_number()) %>% 
+  arrange(`Chronological Order`) %>% 
+  mutate(Story = row_number()) %>% 
+  mutate(Chrono = row_number())  %>%
+  mutate(StartDate = as_date(StartDate)) %>%
+  arrange(OrderWithinPage) %>%
+  mutate(OrderPageEnd = lead(
+    OrderWithinPage,
+    n = 1,
+    default = last(OrderWithinPage)
+  )) %>%
+  mutate(EventLength = OrderPageEnd - OrderWithinPage) %>%
+  relocate(OrderPageEnd:EventLength, .after = OrderWithinPage) %>%
+  mutate(NarrativeStatus = str_replace_all(NarrativeStatus, "\\+", ""))%>%
+  pivot_wider(names_from = "NarrativeStatus",
+              values_from = Chrono)  %>% 
+  pivot_longer(14:15, names_to = "Order", values_to = "values")
+
+absalom_text_positions <- absalom_labels %>% 
+                          select(EventID, Order, position)
+  
+absalom_labels_early_chapters <- absalom_labels_early_chapters %>% 
+                                  left_join(absalom_text_positions, by=c("EventID","Order"))
+  
+  
+chapters_single_short <- chapters_single %>% 
+                          filter (chapter <4)
+```
+
+```{r}
+absalom_early_plot <- plot_ly(
+  absalom_labels_early_chapters,
+  x = ~ values,
+  y = ~ Narrated,
+  frame = ~ Order,
+  name = 'Narrated',
+  text = ~ event,
+  textposition = ~ position,
+  type = 'scatter',
+  mode = 'markers+text',
+  marker = list(opacity = .5),
+  hovertemplate = paste(
+    'Page: %{x}',
+    '<br>',
+    'Narrative Status: Narrated',
+    '<br>',
+    'Chronological Order: %{y}',
+    '<br>',
+    'Start Date:',
+   absalom_labels_early_chapters$StartDate,
+    '<br>',
+    'Summary:',
+    '<br>',
+   absalom_labels_early_chapters$Summary,
+    '<extra></extra>'
+  )
+)
+
+absalom_early_plot <- absalom_early_plot %>% add_trace(
+  x = ~ values,
+  y = ~ Told,
+  name = 'Told',
+  frame = ~ Order,
+  type = 'scatter',
+  text = ~ event,
+  textposition = ~ position,
+  mode = 'markers+text',
+  hovertemplate = paste(
+    'Page: %{x}',
+    '<br>',
+    'Narrative Status: Told',
+    '<br>',
+    'Chronological Order: %{y}',
+    '<br>',
+    'Start Date:',
+   absalom_labels_early_chapters$StartDate,
+    '<br>',
+    'Summary:',
+    '<br>',
+   absalom_labels_early_chapters$Summary,
+    '<extra></extra>'
+  )
+)
+
+
+absalom_early_plot <- absalom_early_plot %>% add_trace(
+  x = ~ values,
+  y = ~ Hypothesized,
+  frame = ~ Order,
+  name = 'Hypothesized',
+  showlegend = TRUE,
+  type = 'scatter',
+  text = ~ event,
+  textposition = ~ position,
+  mode = 'markers+text',
+  hovertemplate = paste(
+    'Page: %{x}',
+    '<br>',
+    'Narrative Status: Hypothesized',
+    '<br>',
+    'Chronological Order: %{y}',
+    '<br>',
+    'Start Date:',
+   absalom_labels_early_chapters$StartDate,
+    '<br>',
+    'Summary:',
+    '<br>',
+   absalom_labels_early_chapters$Summary,
+    '<extra></extra>'
+  )
+)
+absalom_early_plot <- absalom_early_plot %>% add_trace(
+  x = ~ values,
+  y = ~ NarratedConsciousness,
+  frame = ~ Order,
+  name = 'Narrated+Consciousness',
+  type = 'scatter',
+  text = ~ event,
+  textposition = ~ position,
+  mode = 'markers+text',
+  hovertemplate = paste(
+    'Page: %{x}',
+    '<br>',
+    'Narrative Status: Narrated+Consciousness',
+    '<br>',
+    'Chronological Order: %{y}',
+    '<br>',
+    'Start Date:',
+   absalom_labels_early_chapters$StartDate,
+    '<br>',
+    'Summary:',
+    '<br>',
+   absalom_labels_early_chapters$Summary,
+    '<extra></extra>'
+  )
+)
+
+absalom_early_plot <-  absalom_early_plot %>%
+  layout(
+    title = list(text = "Plot Structure Chart: <i>Absalom, Absalom!</i>"),
+    xaxis = list(
+      tickmode = 'array',
+      tickvals = chapters_single_short$values,
+      ticktext = chapters_single_short$chapter,
+      gridwidth = 1.5,
+      title = list(text = "Chapter")
+    ),
+    yaxis = list(title = list(text = "Chronology"),
+                 showgrid = FALSE),
+    autosize = FALSE,
+    width = 740,
+    height = 320,
+    colorway = faulkner_colorway,
+    font = plot_font,
+    margin = m,
+    paper_bgcolor = faulkner_paperbackground,
+    plot_bgcolor = faulkner_plotcolor,
+    modebar = list(bgcolor = faulkner_paperbackground)
+  )
+absalom_early_plot <-  absalom_early_plot %>%
+ add_annotations(
+    x = 0,
+  y = 0,
+  xref = 'paper',
+  yref = 'paper',
+  yshift = -120,
+  xshift = 40,
+  showarrow = FALSE,
+  text = c("Move the slider between Plot and Story to see the different event orders."),
+  font = list(size = 10)
+  )
+
+ 
+
+absalom_early_plot <-  absalom_early_plot %>%
+  config(displayModeBar = FALSE)
+
+
+absalom_early_plot <- absalom_early_plot %>%
+  animation_opts(3500, easing = "elastic", redraw = FALSE)
+
+div(absalom_early_plot, align = "center")
+```
+
+## Piecing it together
+<div style ="line-height:.7; text-align:left">
+<span style = "font-size:50%">We can get better insight into how Faulkner structured *Absalom, Absalom!* by displaying which parts of the story each chapter covers. In **story** mode we see a very mottled line with each chapter seemingly covering all parts of the story. By clicking on each chapter legend entry, we can turn that series on and off, and determine what parts of the story each chapter covers.</span></div>
+
+```{r}
+absalom_by_chapter <- absalom_events_short %>%
+  distinct(EventID, .keep_all = TRUE) %>%
+  select(1:8, 10, 28:29) %>%
+  mutate(Summary = str_remove(Summary, '<p>')) %>%
+  mutate(Summary = str_remove(Summary, '</p>')) %>%
+  mutate(Summary = gsub("((\\S+\\s){7})", "\\1<br> ", Summary)) %>%
+  mutate(chapter = paste ("Chapter ", chapter)) %>% 
+  left_join(chrono_ann_import) %>% 
+  mutate(Plot = row_number()) %>% 
+  arrange(`Chronological Order`) %>% 
+  mutate(Story = row_number()) %>% 
+  mutate(Chrono = row_number())  %>%
+  mutate(StartDate = as_date(StartDate)) %>%
+  arrange(OrderWithinPage) %>%
+  mutate(OrderPageEnd = lead(
+    OrderWithinPage,
+    n = 1,
+    default = last(OrderWithinPage)
+  )) %>%
+  mutate(EventLength = OrderPageEnd - OrderWithinPage) %>%
+  relocate(OrderPageEnd:EventLength, .after = OrderWithinPage) %>%
+  mutate(NarrativeStatus = str_replace_all(NarrativeStatus, "\\+", "")) %>% 
+  pivot_longer(15:16, names_to = "Order", values_to = "values") %>% 
+                                  left_join(absalom_text_positions, by=c("EventID","Order"))
 
 
 ```
 
 
-# Language
 
-## Second Slide
+```{r}
+plot_chapters <- plot_ly(
+  absalom_by_chapter,
+  x = ~ values,
+  y = ~ Chrono,
+  frame = ~ Order,
+  name = ~chapter,
+  text = ~ event,
+  textposition = ~ position,
+  type = 'scatter',
+  mode = 'markers+text',
+  marker = list(opacity = .5),
+  hovertemplate = paste(
+    'Page: %{x}',
+    '<br>',
+    'Chronological Order: %{y}',
+    '<br>',
+    'Start Date:',
+    absalom_by_chapter$StartDate,
+    '<br>',
+    'Summary:',
+    '<br>',
+    absalom_by_chapter$Summary,
+    '<extra></extra>'
+  )
+)
 
--   this is a plotly plot
 
-# Language
 
-## Slide 3
+plot_chapters <-  plot_chapters %>%
+  layout(
+    title = list(text = "Plot Structure Chart: <i>Absalom, Absalom!</i>"),
+    xaxis = list(
+      tickmode = 'array',
+      tickvals = chapters_single$values,
+      ticktext = chapters_single$chapter,
+      gridwidth = 1.5,
+      title = list(text = "Chapter")
+    ),
+    yaxis = list(title = list(text = "Chronology"),
+                 showgrid = FALSE),
+    autosize = FALSE,
+    width = 1024,
+    height = 480,
+    colorway = faulkner_colorway,
+    font = plot_font,
+    margin = m,
+    paper_bgcolor = faulkner_paperbackground,
+    plot_bgcolor = faulkner_plotcolor,
+    modebar = list(bgcolor = faulkner_paperbackground)
+  )
+plot_chapters <-  plot_chapters %>%
+ add_annotations(
+    x = 1,
+  y = 1,
+  xref = 'paper',
+  yref = 'paper',
+  yshift = -180,
+  xshift = 90,
+  showarrow = FALSE,
+  text = c("Click the legend<br>labels to turn the<br>series on and off"),
+  font = list(size = 10),
+  align='left'
+  )
 
-moe infote ## Slide 4
+ 
 
-## Slide 5
+plot_chapters <-  plot_chapters %>%
+  config(displayModeBar = FALSE)
 
-## Slide 6
 
-## Slide 7
+plot_chapters <- plot_chapters %>%
+  animation_opts(3500, easing = "elastic", redraw = FALSE)
+
+div(plot_chapters, align = "center")
+
+```
+
+## Storytelling and History
+
+The overlapping and disjointed versions of events capture Quentin's lived experience of exploring the past. This is not a neat linear chronology told by one authority in a history book, but the collective story of multiple voices who have shaped and reshaped the events to match their version of the truth. The tellers cannot be separated from their tales. It forces us to wonder if any version of the past can ever be true, or if it is simply another story we tell ourselves.
+
+# Language {data-background-video="assets/video/language_type.mp4"}
+
+
+
+
+## Language Overview
+
+
+
