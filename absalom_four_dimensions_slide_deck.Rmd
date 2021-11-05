@@ -1,6 +1,7 @@
 ---
-title: '*Absalom, Absalom!* in Four Dimensions: Characters, Locations, Events, and Language'
+title: 'Digital Supplement: *Absalom, Absalom!* and the Digital Humanities'
 author: "Johannes Burgers"
+date: "This interactive essay acts as a supplement to the long-form essay available in the *Norton Critical Edition* of *Absalom, Absalom!*. It includes visualizations that are not possible to represent in print, and also functions as a standalone essay that explores *Absalom, Absalom!* along four different axes: Characters, Locations, Events, and Language."
 output: 
   revealjs::revealjs_presentation:
     theme: solarized
@@ -97,7 +98,6 @@ absalom_events_short <- absalom_all_events %>%
 dy_events_short <- read_csv("data/compact_database_10_16.csv")
 ```
 
-
 ```{r read_all_DY_events, eval=FALSE}
 #dy_events <- read_csv("data/full_database_2021_5_11.csv")
 ```
@@ -111,13 +111,37 @@ dy_events_short <- read_csv("data/compact_database_10_16.csv")
 #write_csv(dy_events_short, "data/compact_database_10_16.csv")
 ```
 
-
-
 ```{r load_chart_styling, echo=FALSE}
 #Page styling
 
 #This is where you create your own custom color palette for the traces.
 faulkner_colorway = c("#132C53","#F27A18","#ae0700","#79b473","#38726c","#76bed0","#6b2d5c","#448b2d","#e6d812")
+
+faulkner_colorway_highlight_1 = c(
+  "rgba(19, 44, 83, 1)",
+  "rgba(242, 122, 24,.1)",
+  "rgba(174, 7, 0,.05)",
+  "rgba(121, 180, 115,.1)",
+  "rgba(56, 114, 108,.1)",
+  "rgba(118, 190, 208,.1)"
+)
+
+faulkner_colorway_highlight_2 = c(
+  "rgba(19, 44, 83, .1)",
+  "rgba(242, 122, 24,1)",
+  "rgba(174, 7, 0,.05)",
+  "rgba(121, 180, 115,.1)",
+  "rgba(56, 114, 108,.1)",
+  "rgba(118, 190, 208,.1)"
+)
+
+faulkner_colorway_highlight_3 = c(
+  "rgba(19, 44, 83, .1)",
+  "rgba(242, 122, 24,.1)",
+  "rgba(174, 7, 0,1)",
+  "rgba(121, 180, 115,.1)",
+  "rgba(56, 114, 108,.1)",
+  "rgba(118, 190, 208,.1)")
 
 faulkner_colorway_bw = c("#999999", "#777777",	"#555555", "#333333",	
 "#111111")
@@ -147,9 +171,6 @@ unique_characters <- absalom_events_short %>%
   distinct(CharacterName) %>% 
   nrow()
   
-
-
-
 #Characters based on rank
 peripheral_characters <- absalom_events_short %>%
   filter(PresentMentioned == "Present") %>%
@@ -223,7 +244,6 @@ Thomas_unique_all <- absalom_events_short %>%
   nrow()
 ```
 
-
 ```{r black_white_ratios}
 all_characters <- dy_events_short %>%
   distinct(CharacterName) %>%
@@ -242,32 +262,135 @@ char_count_AA <- absalom_events_short %>%
   distinct(CharacterName, Race) %>%
   count(Race)  %>%
   mutate(percent = round(n / sum(n),2)) %>% 
- mutate(Race = ifelse(Race=="MixedBlackWhite", "Mixed Black White", Race))
+ mutate(Race = ifelse(Race=="MixedBlackWhite", "Mixed Ancestry", Race))
 ```
-
 
 ```{r weight_count}
 weight_count <- absalom_events_short %>%
   filter(PresentMentioned == "Present") %>%
- # distinct(EventID, Race, .keep_all = TRUE) %>% 
+
   group_by(Race) %>%
   summarize(word_total = sum(event_words)) %>%
   mutate(percent = round(word_total / sum(word_total),2)) %>% 
-  mutate(Race = ifelse(Race=="MixedBlackWhite", "Mixed Black White", Race)) %>% 
-  filter(percent >0)
+  mutate(Race = ifelse(Race=="MixedBlackWhite", "Mixed Ancestry", Race))  
+  #filter(percent >0)
 
+word_total <- weight_count %>% 
+              summarise(sum(word_total))
 
 ```
 
-# Characters
+```{r weight_count_event}
+weight_count_event <- absalom_events_short %>%
+  filter(PresentMentioned == "Present") %>%
+  select(EventID, Race) %>% 
+  distinct() %>% 
+  count(Race)
+```
 
-The *Digital Yoknapatawpha* project database contains the demographic data of all of the characters if Faulkner's Yoknapatawpha fictions. Using this data is possible to divide all `r unique_characters` unique characters in *Absalom, Absalom!* into different social groups.
+# Introductions
 
-## Race 
+*Absalom, Absalom!* is a notoriously difficult text.
+
+Told from multiple, fragmentary, and contradictory perspectives through a highly convoluted stream-of-consciousness narration, the text resists any reading that establishes an ultimate meaning.
+
+# and Complications
+
+In that spirit, this supplement does not provide an over-arching explanation of the text, but uses different visualizations to understand different aspects of the text:
+
+::: incremental
+-   Characters
+-   Locations
+-   Events
+-   Language
+:::
+
+# Navigation
+
+While each module is interconnected, they can also be read in isolation. Each module has its own heading, and navigating down unlocks more and more detail about each particular topic.
+
+# Characters {data-background-image="assets/images/manuscript_sutpens.jpg"}
+
+>“money, a house, a plantation, slaves, a family — incidentally of course, a wife”
+
+## Character Overview
+
+The *Digital Yoknapatawpha* project database contains the demographic data of all of the characters if Faulkner's Yoknapatawpha fictions. Using this data is possible to divide all `r unique_characters` unique characters in *Absalom, Absalom!* into different groups:
+
+::: incremental
+-   Race
+-   Class
+-   Gender
+:::
+
+## Race {data-background-image="assets/images/movie_theater_stairs.jpg"}
+
+. . .
+
 > As a reader you have been forced to hunt for a drop of black blood that means everything and nothing. The insanity of racism. - Toni Morrison, *Conversations*
 
-Now I stage
-## Visualization
+. . .
+
+Racial segregation was a central feature of the American South before the Civil Rights Movement.
+
+. . .
+
+Faulkner was highly sensitive to how this artificial 'color line' structured social relations.
+
+## Measuring Race
+
+Using the data from [*Digital Yoknapatawpha*](http://faulkner.iath.virginia.edu/) it is possible to create a statistical overview of race in *Absalom, Absalom!*.
+
+## Measuring Race
+
+The overwhelming majority of characters are [White]{style="color:#132C53; background: rgba(240,241,235,0)"}.
+
+. . .
+
+```{r}
+plot_demography <- plot_ly()
+
+plot_demography <- plot_demography %>% 
+      add_pie(
+      values =  ~char_count_AA$n,
+    labels = ~ char_count_AA$Race,
+    type = 'pie',
+    name = "Character Count",
+    text = paste(char_count_AA$Race, char_count_AA$percent*100, "%"),
+    textinfo = 'text',
+    hovertemplate = paste("Total", char_count_AA$Race,"characters:", char_count_AA$n,
+    '<extra></extra>')
+    )
+plot_demography <- plot_demography %>% layout(
+    title = "Character Demography",
+    showlegend = FALSE,
+    colorway = faulkner_colorway,
+    font = plot_font,
+    margin = m,
+    autosize = FALSE,
+    width = 1024,
+    paper_bgcolor = faulkner_paperbackground,
+    plot_bgcolor = faulkner_plotcolor,
+     modebar = list(bgcolor= faulkner_paperbackground)
+     )
+plot_demography
+```
+
+## Narrative Presence
+
+Simply counting the total number of characters in a text does not account for the number of times they occur in the text.
+
+. . .
+
+Statistically speaking, there is only one Moor in Shakespeare's *Othello*, but as he appears in nearly every scene he is one of the most present characters.
+
+. . .
+
+We can weight for character presence by calculating how often they occur in an event.
+
+## Character Count vs. Character Presence
+
+Weighting by narrative presence actually underscores the presence of [White]{style="color:#132C53; background: rgba(240,241,235,0)"} characters more.
 
 ```{r plot_demography}
 
@@ -283,8 +406,10 @@ plot_demography <- plot_demography %>%
     name = "Character Count",
     text = paste(char_count_AA$Race, char_count_AA$percent*100, "%"),
     textinfo = 'text',
+       hovertemplate = paste("Total ", char_count_AA$Race," characters: ", char_count_AA$n,
+    '<extra></extra>', sep=""),
     domain = list(x=c(.1,.45), y = c(.1,.9))
-    #width= 300
+    
   )
 
 plot_demography <- plot_demography %>% 
@@ -295,6 +420,7 @@ plot_demography <- plot_demography %>%
     name = "Character Appearance",
     text = paste(weight_count$Race, weight_count$percent*100, "%"),
     textinfo = 'text',
+       hovertemplate = paste(weight_count$Race," characters appear in ", weight_count$percent*100, "% of the text", "<extra></extra>", sep=""),
     domain = list(x = c(.55,.9), y = c(.1,.9))
  
   )
@@ -302,15 +428,14 @@ plot_demography <- plot_demography %>%
 plot_demography <- plot_demography %>% layout(
     title = "Character Demography",
     showlegend = FALSE,
-    colorway = faulkner_colorway,
+    colorway = faulkner_colorway_highlight_1,
     font = plot_font,
     margin = m,
     autosize = FALSE,
     width = 1024,
     paper_bgcolor = faulkner_paperbackground,
-    plot_bgcolor = faulkner_plotcolor
-    #height = 605
-     # autosize = FALSE
+    plot_bgcolor = faulkner_plotcolor,
+    modebar = list(bgcolor= faulkner_paperbackground)
   )
 
 plot_demography <- plot_demography %>% add_annotations(
@@ -328,7 +453,7 @@ plot_demography <- plot_demography %>% add_annotations(
 plot_demography <-  plot_demography %>%
   config(
     toImageButtonOptions = list(
-      format = "svg",
+      format = "png",
       width = 1024,
       height = 605
     )
@@ -338,39 +463,598 @@ plot_demography <-  plot_demography %>%
 plot_demography
 ```
 
-# Locations
+## Character Count vs. Character Passing
 
-## Explainer
-somethings
+Meanwhile, the number of [Mixed Ancestry]{style="color:#ae0700; background: rgba(240,241,235,0)"} characters increases.
 
-## Visualization
+```{r}
+
+plot_demography <- plot_demography %>% layout(
+    colorway = faulkner_colorway_highlight_3
+  )
+
+plot_demography
+```
+
+## Character Count vs. Character Passing
+
+But only because [Black]{style="color:#F27A18; background: rgba(240,241,235,0)"} characters are less present.
+
+```{r}
+plot_demography <- plot_demography %>% layout(
+        colorway = faulkner_colorway_highlight_2
+      )
+
+plot_demography
+```
+
+## Whiteness and Racial Passing
+
+The data suggest that while *Absalom, Absalom!* is concerned with the 'color line', it is decidedly from a White perspective.
+
+. . .
+
+Race and racial passing is only conceived in how it might trouble Whiteness and not how it might affect the Black community.
+
+## Passing Characters
+
+<span style="font-size:70%">Charles Bon is more present in the text than all other [Mixed Ancestry]{style="color:#ae0700; background: rgba(240,241,235,0)"} characters combined, but is simply another major character compared to the [White]{style="color:#132C53; background: rgba(240,241,235,0)"} characters.</span>
+
+```{r}
+sunburst <- read_csv("data/sunburst_final.csv")
+```
+
+```{r}
+sunburst <- sunburst %>% 
+            mutate(race = str_trim(str_remove_all(parents, "Total -"))) 
+
+sunburst_totals <- sunburst %>% 
+                   slice(2:6) %>% 
+                    mutate(race = labels) %>% 
+                  select(race, values) %>% 
+                  rename(value_total = values)
+
+sunburst <- sunburst %>% 
+            left_join(sunburst_totals) %>% 
+            mutate(value_total = ifelse(str_detect(race, "Total")==TRUE, values[1],value_total)) %>% 
+            mutate(percent = round(values/value_total*100,0))
+```
+
+```{r sunburst_plot}
+demography_sunburst <- plot_ly(
+  labels = sunburst$labels,
+  parents = sunburst$parents,
+    values = sunburst$values,
+  ids = sunburst$ids,
+  type = 'sunburst',
+    hovertemplate = paste(sunburst$percent, "% of ", sunburst$race,
+    '<extra></extra>', sep="")
+)
+
+demography_sunburst <- demography_sunburst %>% 
+ add_annotations(
+  x = 0,
+  y = 1,
+  xref = 'paper',
+  yref = 'paper',
+  showarrow = FALSE,
+  text = c("Click on the Race labels to view individual charts"),
+  font = list(size = 10)
+)
+
+demography_sunburst <- demography_sunburst %>% 
+    layout(
+    title = "Character Presence",
+    showlegend = FALSE,
+    colorway = c("#132C53","#ae0700","#F27A18","#79b473","#38726c","#76bed0","#6b2d5c","#448b2d","#e6d812"),
+    #The colorway had to be reversed to account for Plotly taking the higher value to match the colorway.
+    font = plot_font,
+    margin = m,
+    paper_bgcolor = faulkner_paperbackground,
+    plot_bgcolor = faulkner_plotcolor,
+    modebar = list(bgcolor= faulkner_paperbackground)
+  )
+
+
+div(demography_sunburst,align = "center")
+```
+
+## Passed over Characters
+
+Meanwhile, the most present [Black]{style="color:#F27A18; background: rgba(240,241,235,0)"} characters are the unnamed enslaved characters.
+
+```{r black_sunburst}
+black_sunburst <- sunburst %>% 
+                  filter(parents =="Total - Black" | ids == "Total - Black" | labels == "Total")
+```
+
+```{r}
+demography_sunburst_black <- plot_ly(
+  labels = black_sunburst$labels,
+  parents = black_sunburst$parents,
+    values = black_sunburst$values,
+  ids = black_sunburst$ids,
+  type = 'sunburst',
+    hovertemplate = paste(black_sunburst$percent, "% of ", black_sunburst$race,
+    '<extra></extra>', sep=""),
+  level = 'Total - Black'
+)
+
+
+
+demography_sunburst_black <- demography_sunburst_black %>% 
+    layout(
+    title = "Character Presence",
+    showlegend = FALSE,
+    colorway = c("#F27A18","#ae0700"),
+    font = plot_font,
+    margin = m,
+    paper_bgcolor = faulkner_paperbackground,
+    plot_bgcolor = faulkner_plotcolor,
+    modebar = list(bgcolor= faulkner_paperbackground)
+  )
+
+
+demography_sunburst_black
+```
+
+## Passing Thoughts
+
+It is clear from reading *Absalom, Absalom!* that the novel is about Charles Bon's potential transgression across the 'color line.' The data reveal that the novel attends to this issue from a predominantly White perspective, and at the exclusion of all other non-white characters.
+
+The troubling conclusion is that the various narrators only really care about racial passing if it threatens upper class white femininity. 
+
+In doing so, they are not only naturalizing racial difference, but also tightly patrolling the boundaries of gender, sexuality, and class. 
+
+In the highly fraught social circumstances of the pre-Civil Rights South, there is no way to separate race, class, gender, and sexuality.
+
+# Events {data-background-image="assets/images/manuscript_chronology.jpg"}
+
+>“Maybe happen is never once”
+
+## Events Overview
+
+*Absalom, Absalom!* resists summary. It is told from multiple, contradictory perspectives that each re-tell the same set of historical events: Thomas Sutpen arrives in Jefferson and starts a family with Ellen Coldfield. He has a son, Henry, and a daughter, Judith. Judith falls in love with Henry's friend from college Charles Bon. On the day Judith and Charles are supposed to marry, Henry kills him and disappears. 
+
+. . . 
+
+No one knows why,
+
+. . . 
+
+but everyone has a theory.
+
+## Blackbirds
+
+Faulkner was once asked if any one of the characters has the "right view."
+
+. . .
+
+> In Absalom, Absalom! is any one of the people who talk about Sutpen have the right view, or is it more or less a case of thirteen ways of looking at a blackbird with none of them [getting it?] right? - May 8th, 1958 [Faulkner at Virginia](https://faulkner.lib.virginia.edu/display/wfaudio29_1.html#wfaudio29_1.11)
+
+. . . 
+
+His answer is telling...
+
+##  {data-background-video="assets/video/faulkner_blackbird.mp4"}
+
+## Plotting the Plot
+
+Though the plot can be very confusing, it is clear from Faulkner's notes that he had an underlying structure.
+
+
+## Story vs. Plot
+
+Often used interchangeable, **story** and **plot** describe two different aspects of a narrative.
+
+. . . 
+
+**plot** - The order of events in which they are told to the reader.
+
+. . . 
+
+**story** - The order of events as they actually occur. This is also known as **chronology**.
+
+## Sutpen's Story and Plot
+
+Faulkner does not tell us the events in the order they occur (**story**). Instead, he reorganizes them into a non-linear order (**plot**).
+
+We can see this distinction with his delayed revelations about Sutpen's life.
+
+## Sutpen's Plot and Story
+
+Following the order of events as Quentin discovers them, we learn several important details about him out of order:
+
+::: incremental
+- **Chapter 1**: Sutpen arrives in Jefferson
+- **Chapter 6**: Sutpen is killed by Jones
+- **Chapter 7**: Sutpen is born in Virginia
+:::
+
+. . .
+
+These should be re-sorted to tell the **story**.
+
+::: incremental
+- **Chapter 7**: Sutpen is born in Virginia
+- **Chapter 1**: Sutpen arrives in Jefferson
+- **Chapter 6**: Sutpen is killed by Jones
+:::
+
+## Ordering Events
+
+*Digital Yoknapatawpha* has broken down the novel into `r nrow(event_length)` individual events.
+
+An event is any time there is one or more characters at one location for a discrete period of time.
+
+Each of the `r nrow(event_length)` events in the novel was also assigned a number that indicates its order in the **plot** and in the **story/chronology**. 
+
+## Plotting Events
+
+We can take the **plot** and **chronology** data and put them on a chart to show the structure of the narrative.
+
+Chronology is placed on the y-axis, and plot is placed on the x-axis.
+
+Events that are chronologically earlier are lower down, while later events are higher up.
+
+## Sutpen's plot
+
+The **plot** chart shows the events as they are narrated to us, the **story** chart shows the order in which those events happen according to the chronology.
+
+```{r sutpen_plot_outline}
+sutpen_outline <- tibble(Plot = c(1,6,7), Story =c(6,7,1), Chrono = c(2,3,1), name= c("Sutpen arrives in Jefferson", "Sutpen killed by Jones", "Sutpen born in Virginia"),xoffset = c(100,-100,-100), yoffset = c(-10,-10,10))
+
+sutpen_outline <- sutpen_outline %>%  
+                  pivot_longer(1:2, names_to = "series")
+                  
+
+```
+
+```{r sutpen_outline_plot, align='center'}
+sutpen_outline_plot <- plot_ly(
+  sutpen_outline,
+  x = ~ value,
+  y = ~ Chrono,
+  text = ~name,
+  textposition = c('top right','top left','bottom left','bottom left','top left','top right'),
+  frame = ~ series,
+  type = 'scatter',
+  mode = 'markers+text')
+
+sutpen_outline_plot <- sutpen_outline_plot %>%
+  layout(
+    title = list(text = "Plot Structure Chart: Major Events Sutpen"),
+    showlegend = FALSE,
+    xaxis = list(showgrid = FALSE,
+                 title = list(text = "Chapter")),
+    yaxis = list(
+      title = list(text = "Chronology"),
+      showgrid = FALSE,
+      tickmode = 'array',
+      tickvals = c(1, 2, 3)
+    ),
+    colorway = faulkner_colorway,
+    font = plot_font,
+    margin = m,
+    autosize = FALSE,
+    width = 640,
+    paper_bgcolor = faulkner_paperbackground,
+    plot_bgcolor = 'rgba(255,255,255,0)',
+    modebar = list(
+      bgcolor = faulkner_paperbackground
+         )
+  )
+
+
+
+sutpen_outline_plot <- sutpen_outline_plot %>% 
+  config(
+      displayModeBar = FALSE
+  )
+
+sutpen_outline_plot <- sutpen_outline_plot %>% 
+                       animation_opts(
+    2500, easing = "elastic", redraw = FALSE
+  )
+      
+
+div(sutpen_outline_plot, align = "center")
+```
+
+## Plotting *Absalom, Absalom!*
+
+
+
+```{r import_annotations}
+#creates a clean csv for export. Not necessary
+
+#chronology_annotations_export <- absalom_chronology %>%
+#  select(4, 8:9, 11, 14)
+
+#write_csv(chronology_annotations_export, "annotations_export.csv")
+
+chrono_ann_import <- read_csv("data/annotations_import_revised.csv")
+
+chrono_ann_import <- chrono_ann_import %>%
+  drop_na(event) %>% 
+  select(OrderWithinPage,event)
+
+
+```
+
+```{r narrative_structure}
+#This primes the data for plotly. TODO upstream this in a more logical way. This is just a grab bag of cleaning.
+
+absalom_chronology <- absalom_events_short %>%
+  distinct(EventID, .keep_all = TRUE) %>%
+  select(1:8, 10, 28:29) %>%
+  mutate(Summary = str_remove(Summary, '<p>')) %>%
+  mutate(Summary = str_remove(Summary, '</p>')) %>%
+  mutate(Summary = gsub("((\\S+\\s){7})", "\\1<br> ", Summary)) %>%
+  left_join(chrono_ann_import) %>% 
+  mutate(Plot = row_number()) %>% 
+  arrange(`Chronological Order`) %>% 
+  mutate(Story = row_number()) %>% 
+  mutate(Chrono = row_number())  %>%
+  mutate(StartDate = as_date(StartDate)) %>%
+  arrange(OrderWithinPage) %>%
+  mutate(OrderPageEnd = lead(
+    OrderWithinPage,
+    n = 1,
+    default = last(OrderWithinPage)
+  )) %>%
+  mutate(EventLength = OrderPageEnd - OrderWithinPage) %>%
+  relocate(OrderPageEnd:EventLength, .after = OrderWithinPage) %>%
+  mutate(NarrativeStatus = str_replace_all(NarrativeStatus, "\\+", ""))
+
+absalom_chronology_bw <-  absalom_chronology %>%
+  pivot_wider(names_from = "NarrativeStatus",
+              values_from = Chrono)  %>% 
+  pivot_longer(14:15, names_to = "Order", values_to = "values")
+
+
+```
+```{r}
+#this is for setting text positions
+#write_csv(absalom_chronology_bw, "absalom_chronology_plot.csv")
+absalom_labels <- read_csv("data/absalom_plot_labels.csv")
+
+```
+
+
+
+```{r}
+chapters_single <- absalom_chronology_bw %>%
+  distinct(chapter, .keep_all = TRUE) %>%                             select(values, chapter)
+```
 
 
 
 
-# Events
+```{r plot_aa_bw, fig.cap= "Figure 3: Plot Structure of <i>Absalom, Absalom!</i>. Particularly notable, is the repetition of an S pattern throughout. This indicates a similar structure across the chapters."}
+plot_aa_bw <- plot_ly(
+  absalom_labels,
+  x = ~ values,
+  y = ~ Narrated,
+  frame = ~Order,
+  name = 'Narrated',
+  text = ~event,
+  textposition = ~position,
+  type = 'scatter',
+  mode = 'markers+text',
+  marker = list(opacity = .5),
+  hovertemplate = paste(
+    'Page: %{x}',
+    '<br>',
+    'Narrative Status: Narrated',
+    '<br>',
+    'Chronological Order: %{y}',
+    '<br>',
+    'Start Date:',
+    absalom_chronology_bw$StartDate,
+    '<br>',
+    'Summary:',
+    '<br>',
+    absalom_chronology_bw$Summary,
+    '<extra></extra>'
+  )
+)
 
-## {data-background-video="assets/video/faulkner_blackbird.mp4"}
+plot_aa_bw <- plot_aa_bw %>% add_trace(
+  x = ~ values,
+  y = ~ Told,
+  name = 'Told',
+  frame = ~Order,
+    type = 'scatter',
+  text = ~event,
+  textposition = ~position,
+  mode = 'markers+text',
+  hovertemplate = paste(
+    'Page: %{x}',
+    '<br>',
+    'Narrative Status: Told',
+    '<br>',
+    'Chronological Order: %{y}',
+    '<br>',
+    'Start Date:',
+    absalom_chronology_bw$StartDate,
+    '<br>',
+    'Summary:',
+    '<br>',
+    absalom_chronology_bw$Summary,
+    '<extra></extra>'
+  )
+)
+
+plot_aa_bw <- plot_aa_bw %>% add_trace(
+  x = ~ values,
+  y = ~ Remembered,
+  frame = ~Order,
+  legendgroup = "Other",
+  name = paste('Remembered<br>Hypothesized<br>Narrated+Consciousness'),
+  type = 'scatter',
+  text = ~event,
+  textposition = ~position,
+  mode = 'markers+text',
+  hovertemplate = paste(
+    'Page: %{x}',
+    '<br>',
+    'Narrative Status: Remembered',
+    '<br>',
+    'Chronological Order: %{y}',
+    '<br>',
+    'Start Date:',
+    absalom_chronology_bw$StartDate,
+    '<br>',
+    'Summary:',
+    '<br>',
+    absalom_chronology_bw$Summary,
+    '<extra></extra>'
+  )
+  
+)
+plot_aa_bw <- plot_aa_bw %>% add_trace(
+  x = ~ values,
+  y = ~ Hypothesized,
+  frame = ~Order,
+  name = 'Hypothesized',
+  showlegend = TRUE,
+  type = 'scatter',
+  text = ~event,
+  textposition = ~position,
+  mode = 'markers+text',
+   hovertemplate = paste(
+    'Page: %{x}',
+    '<br>',
+    'Narrative Status: Hypothesized',
+    '<br>',
+    'Chronological Order: %{y}',
+    '<br>',
+    'Start Date:',
+    absalom_chronology_bw$StartDate,
+    '<br>',
+    'Summary:',
+    '<br>',
+    absalom_chronology_bw$Summary,
+    '<extra></extra>'
+  )
+)
+plot_aa_bw <- plot_aa_bw %>% add_trace(
+  x = ~ values,
+  y = ~ NarratedConsciousness,
+  frame = ~Order,
+  legendgroup = "Other",
+  name = 'Narrated+Consciousness',
+  type = 'scatter',
+  text = ~event,
+  textposition = ~position,
+  mode = 'markers+text',
+  hovertemplate = paste(
+    'Page: %{x}',
+    '<br>',
+    'Narrative Status: Narrated+Consciousness',
+    '<br>',
+    'Chronological Order: %{y}',
+    '<br>',
+    'Start Date:',
+    absalom_chronology_bw$StartDate,
+    '<br>',
+    'Summary:',
+    '<br>',
+    absalom_chronology_bw$Summary,
+    '<extra></extra>'
+  )
+)
+
+plot_aa_bw <-  plot_aa_bw %>%
+  layout(
+    title = list(text = "Plot Structure Chart: <i>Absalom, Absalom!</i>"),
+    xaxis = list(
+      tickmode = 'array',
+      tickvals = chapters_single$values,
+      ticktext = chapters_single$chapter,
+      gridwidth = 1.5,
+      title = list(text = "Chapter")
+    ),
+    yaxis = list(title = list(text = "Chronology"),
+                 showgrid = FALSE),
+    autosize = FALSE,
+    width = 1024,
+    height = 480,
+    colorway = faulkner_colorway
+  )
+
+# plot_aa_bw <- plot_aa_bw %>%
+#   add_annotations(
+#     x = chrono_ann_import$OrderWithinPage,
+#     y = chrono_ann_import$Chrono,
+#     text = chrono_ann_import$event,
+#     xref = "x",
+#     yref = "y",
+#     showarrow = TRUE,
+#     arrowhead = 3,
+#     arrowwidth = 1,
+#     arrowsize = .5,
+#     ax = chrono_ann_import$xoffset,
+#     ay = chrono_ann_import$yoffset,
+#     font = list(color = chrono_ann_import$fontcolor),
+#     bgcolor = chrono_ann_import$bgcolor,
+#     borderpad = 0,
+#     borderwidth = 0
+#   )
+# 
+# plot_aa_bw <- plot_aa_bw %>%
+#   add_annotations(
+#     x = chrono_ann_import_secondary$OrderWithinPage,
+#     y = chrono_ann_import_secondary$Chrono,
+#     text = chrono_ann_import_secondary$event,
+#     xref = "x",
+#     yref = "y",
+#     showarrow = TRUE,
+#     arrowhead = 3,
+#     arrowwidth = 1,
+#     arrowsize = .5,
+#     ax = chrono_ann_import_secondary$xoffset,
+#     ay = chrono_ann_import_secondary$yoffset,
+#     font = list(color = "rgba(255,255,255,0)"),
+#     bgcolor = "rgba(255,255,255,0)",
+#     borderpad = 0,
+#     borderwidth = 0
+#   )
+
+plot_aa_bw <-  plot_aa_bw %>% 
+   config(
+      displayModeBar = FALSE
+  )
+  
+
+plot_aa_bw <- plot_aa_bw %>% 
+                       animation_opts(
+    3500, easing = "elastic", redraw = FALSE
+  )
+      
+
+div(plot_aa_bw, align = "center")
+
+
+
+```
 
 
 # Language
 
-
 ## Second Slide
-- this is a plotly plot
+
+-   this is a plotly plot
 
 # Language
 
 ## Slide 3
-moe infote
-## Slide 4
+
+moe infote ## Slide 4
 
 ## Slide 5
 
 ## Slide 6
 
 ## Slide 7
-
-
-
-
