@@ -309,13 +309,15 @@ In that spirit, this supplement does not provide an over-arching explanation of 
 
 While each module is interconnected, they can also be read in isolation. Each module has its own heading, and navigating down unlocks more and more detail about each particular topic.
 
+Use the menu at the bottom left to jump directly to different sections.
+
 # Characters {data-background-image="assets/images/manuscript_sutpens.jpg"}
 
 >“money, a house, a plantation, slaves, a family — incidentally of course, a wife”
 
 ## Literary Demography
 
-The *Digital Yoknapatawpha* [*Digital Yoknapatawpha*](http://faulkner.iath.virginia.edu/) database contains every character who appears in Faulkner's Yoknapatawpha fictions. 
+The [*Digital Yoknapatawpha*](http://faulkner.iath.virginia.edu/) database contains every character who appears in Faulkner's Yoknapatawpha fictions. 
 
 . . .
 
@@ -323,19 +325,11 @@ Each character has a set of attribute information, including their race, class, 
 
 . . .
 
-With this information, we can model the composition of the entire character population.
-. . .
-
-> This model is a literary demography
+With this information, we can make a **literary demography** of the composition of the entire character population.
 
 . . .
 
 One of the most salient pieces of demographic information in *Absalom, Absalom!* is **race**.
-
-
-
-
-
 
 
 ## Race {data-background-image="assets/images/movie_theater_stairs.jpg"}
@@ -383,7 +377,7 @@ plot_demography <- plot_demography %>% layout(
     font = plot_font,
     margin = m,
     autosize = FALSE,
-    width = 1024,
+    height = 480,
     paper_bgcolor = faulkner_paperbackground,
     plot_bgcolor = faulkner_plotcolor,
      modebar = list(bgcolor= faulkner_paperbackground)
@@ -447,7 +441,7 @@ plot_demography <- plot_demography %>% layout(
     font = plot_font,
     margin = m,
     autosize = FALSE,
-    width = 1024,
+    height =450,
     paper_bgcolor = faulkner_paperbackground,
     plot_bgcolor = faulkner_plotcolor,
     modebar = list(bgcolor= faulkner_paperbackground)
