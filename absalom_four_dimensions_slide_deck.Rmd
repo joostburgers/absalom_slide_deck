@@ -1673,9 +1673,12 @@ Faulkner also concocts neologisms by combining words or adding a prefix to an ex
 Perhaps the most unique feature of the text is Faulkner's use of parentheses.
 
 . . .
+
 There are 1278 total or 639 pairs.
+
 . . .
-These parentheses occur across the text, and also nest within each other three levels deep:
+
+These parentheses occur across the text, and also nest within each other four levels deep:
 
 - () Level 1
 - (()) Level 2
@@ -1768,4 +1771,4 @@ plot_parentheses
 
 ## Faulkner's Language
 
-The complexity of Faulkner's language forces the reader to consider the meaning of every word, in every long sentence, throughout the entire work. One cannot pull at any thread in the novel without loosening others. The past existed as a reality but it can only be represented in and through language.
+The complexity of Faulkner's language forces the reader to consider the meaning of every word, in every long sentence, throughout the entire work. One cannot pull at any thread in the novel without loosening others. The past existed as a reality, but it can only be translated into the present in and through language.
