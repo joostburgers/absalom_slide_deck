@@ -1360,16 +1360,418 @@ div(plot_chapters, align = "center")
 
 ```
 
+
+
+```{r}
+# This was a trial for looking at the structure through the source, but given that the narrative data is too rich, this does not lead to a very good graph.
+
+# absalom_by_narrator <- absalom_events_short %>%
+#   distinct(EventID, .keep_all = TRUE) %>%
+#   select(1:8, 10, 28:29) %>%
+#   mutate(Summary = str_remove(Summary, '<p>')) %>%
+#   mutate(Summary = str_remove(Summary, '</p>')) %>%
+#   mutate(Summary = gsub("((\\S+\\s){7})", "\\1<br> ", Summary)) %>% 
+#   mutate (Source = str_trim(str_extract(Summary,"(?<=SOURCE:).*[:alpha:]"))) %>% 
+#   mutate (Source = str_remove_all(Source,":")) %>% 
+#   mutate(chapter = paste ("Chapter ", chapter)) %>% 
+#   left_join(chrono_ann_import) %>% 
+#   mutate(Plot = row_number()) %>% 
+#   arrange(`Chronological Order`) %>% 
+#   mutate(Story = row_number()) %>% 
+#   mutate(Chrono = row_number())  %>%
+#   mutate(StartDate = as_date(StartDate)) %>%
+#   arrange(OrderWithinPage) %>%
+#   mutate(OrderPageEnd = lead(
+#     OrderWithinPage,
+#     n = 1,
+#     default = last(OrderWithinPage)
+#   )) %>%
+#   mutate(EventLength = OrderPageEnd - OrderWithinPage) %>%
+#   relocate(OrderPageEnd:EventLength, .after = OrderWithinPage) %>%
+#   mutate(NarrativeStatus = str_replace_all(NarrativeStatus, "\\+", "")) %>% 
+#   pivot_longer(16:17, names_to = "Order", values_to = "values") %>% 
+#                                   left_join(absalom_text_positions, by=c("EventID","Order"))
+
+
+```
+
+
+
+```{r}
+# narrator_plot <- plot_ly(
+#   absalom_by_narrator,
+#   x = ~ values,
+#   y = ~ Chrono,
+#   frame = ~ Order,
+#   name = ~Source,
+#   text = ~ event,
+#   textposition = ~ position,
+#   type = 'scatter',
+#   mode = 'markers+text',
+#   marker = list(opacity = .5),
+#   hovertemplate = paste(
+#     'Page: %{x}',
+#     '<br>',
+#     'Chronological Order: %{y}',
+#     '<br>',
+#     'Start Date:',
+#     absalom_by_chapter$StartDate,
+#     '<br>',
+#     'Summary:',
+#     '<br>',
+#     absalom_by_chapter$Summary,
+#     '<extra></extra>'
+#   )
+# )
+# 
+# 
+# 
+# narrator_plot <-  narrator_plot %>%
+#   layout(
+#     title = list(text = "Plot Structure Chart: <i>Absalom, Absalom!</i>"),
+#     xaxis = list(
+#       tickmode = 'array',
+#       tickvals = chapters_single$values,
+#       ticktext = chapters_single$chapter,
+#       gridwidth = 1.5,
+#       title = list(text = "Chapter")
+#     ),
+#     yaxis = list(title = list(text = "Chronology"),
+#                  showgrid = FALSE),
+#     autosize = FALSE,
+#     width = 1024,
+#     height = 480,
+#     colorway = faulkner_colorway,
+#     font = plot_font,
+#     margin = m,
+#     paper_bgcolor = faulkner_paperbackground,
+#     plot_bgcolor = faulkner_plotcolor,
+#     modebar = list(bgcolor = faulkner_paperbackground)
+#   )
+# narrator_plot <-  narrator_plot %>%
+#  add_annotations(
+#     x = 1,
+#   y = 1,
+#   xref = 'paper',
+#   yref = 'paper',
+#   yshift = -180,
+#   xshift = 90,
+#   showarrow = FALSE,
+#   text = c("Click the legend<br>labels to turn the<br>series on and off"),
+#   font = list(size = 10),
+#   align='left'
+#   )
+# 
+#  
+# 
+# narrator_plot <-  narrator_plot %>%
+#   config(displayModeBar = FALSE)
+# 
+# 
+# narrator_plot <- narrator_plot %>%
+#   animation_opts(3500, easing = "elastic", redraw = FALSE)
+# 
+# div(narrator_plot, align = "center")
+
+```
+
 ## Storytelling and History
 
 The overlapping and disjointed versions of events capture Quentin's lived experience of exploring the past. This is not a neat linear chronology told by one authority in a history book, but the collective story of multiple voices who have shaped and reshaped the events to match their version of the truth. The tellers cannot be separated from their tales. It forces us to wonder if any version of the past can ever be true, or if it is simply another story we tell ourselves.
 
-# Language {data-background-video="assets/video/language_type.mp4"}
+# Language {data-background-video="assets/video/language_type.mp4" data-background-video-loop="true"}
 
 
 
 
 ## Language Overview
 
+The language in *Absalom, Absalom!* is very challenging.
+
+. . . 
+
+Faulkner's language constantly draws attention to itself.
+
+. . .
+
+The text reminds us that *what* is said cannot be separated from how it is *said*.
 
 
+## The longest sentence
+
+```{r sentence_length}
+
+absalom_clean <- absalom_txt %>% 
+mutate(text = gsub("[,\\!\\?\\.](?=[^’‘]*’[\\s—-])"," ",text, perl=TRUE))
+
+
+#Regex explained:
+#[,\\!\\?\\.] find any of !,?.
+#(?=[^’‘] not followed by curly quote. The closing curly quote is counterintuitive here, but it helps exclude 's as in Sutpen's. Instead, we want all curly quotes followed with a white space \s: 
+#*’[\\s—-]) the en and em dash are there because sometimes these can abutt the closing curly quote.
+
+absalom_sentences <- absalom_clean %>%
+  unnest_regex(word, text, "[.?!]") %>%
+  mutate (string_length = str_count(word, "\\S+")) 
+
+absalom_sentences_mean <-  absalom_sentences %>%
+  summarize(mean_length = mean(absalom_sentences$string_length)) %>% 
+  mutate(author = "William Faulkner", date = "1936", title = "Absalom, Absalom!") %>% 
+  relocate(mean_length, .after = last_col())
+  
+absalom_sentences_long <- absalom_sentences %>%
+  filter(string_length > 99) %>%
+  nrow()
+```
+
+
+Sentences in *Absalom, Absalom!* are very long. 
+
+. . . 
+
+On average sentences are `r round(absalom_sentences_mean$mean_length,0)` words long.
+
+. . . 
+
+The longest sentence is `r max(absalom_sentences$string_length)` words! That's a 3-4 page college paper.
+
+## A View of the Long Sentence
+
+Compared to other American Classics, Faulkner's sentences are much, much longer.
+
+```{r author_sentence_lengths, cache = TRUE}
+all_works <-
+  list.files(path = "data/other_texts/",pattern = "*.txt", full.names = TRUE) %>%   
+  #grab a list of all the files with .txt extension
+  map_df(~ data_frame(  #the map function performs the same command on all parts of the data set. In this case the .txt files
+    text = read_file(.), #read the files
+    date = ifelse(
+      str_detect(basename(.), "[:digit:]{4}") == TRUE,
+      str_extract(basename(.), "[:digit:]{4}"),
+      NA
+    ) #see if there is a date in yyyy format, i.e. 1987, and extract the date, if it can't fine date NA
+  )) %>% 
+  mutate(author = str_extract(text, "(?<=Author:).*")) %>% #extract the text after Author: in the document as author
+  mutate(author = str_squish(author)) %>% #remove any whitespace
+   #detect whether this is First Name Last Name or Last Name, First Name and switch
+  mutate(title = str_extract(text, "(?<=Title:).*")) %>% #grab title
+  mutate(title = str_squish(title)) %>%  #trim title
+  mutate(text = gsub("[,\\!\\?\\.](?=[^’‘]*’[\\s—-])"," ",text, perl=TRUE)) %>% 
+   unnest_regex(word, text, "[.?!]")
+```
+
+
+```{r author_sentence_lengths_mean}
+all_works_mean <- all_works %>% 
+  mutate (string_length = str_count(word, "\\S+")) %>% 
+  group_by(author, date, title) %>% 
+  summarize(mean_length = mean(string_length)) %>% 
+  bind_rows(absalom_sentences_mean) %>% 
+  mutate (mean_length = round(mean_length,0)) %>% 
+  arrange(date) %>% 
+  mutate(display_name = paste(author, "<br>", "<i>",title,"</i>"," (", date, ")", sep="")) %>% 
+  ungroup() %>% 
+  mutate(order = row_number())
+  
+
+
+```
+
+```{r sentence_length_plot}
+
+sentence_length_plot <- plot_ly(
+  all_works_mean,
+  x = ~ order,
+  y = ~ mean_length,
+  type = "bar",
+  marker = list(
+    color = c(
+      faulkner_colorway[2],
+      faulkner_colorway[2],
+      faulkner_colorway[2],
+      faulkner_colorway[1],
+      faulkner_colorway[2]
+    )
+  )
+)
+
+sentence_length_plot <- sentence_length_plot %>%
+  layout(
+    title = list(text = "Average Sentence Lengths in American Classics"),
+    xaxis = list(
+      tickmode = 'array',
+      tickvals = all_works_mean$order,
+      ticktext = all_works_mean$display_name,
+      title = list(text = "Work")
+    ),
+    yaxis = list(
+      title = list(text = "Words per Sentence"),
+      showgrid = FALSE
+    ),
+    # autosize = FALSE,
+    # width = 1024,
+    # height = 480,
+    font = plot_font,
+    margin = m,
+    paper_bgcolor = faulkner_paperbackground,
+    plot_bgcolor = faulkner_plotcolor,
+    modebar = list(bgcolor = faulkner_paperbackground)
+  )
+
+
+
+
+
+sentence_length_plot
+  
+  
+  
+
+
+
+
+
+```
+## Neologisms {data-background-video="assets/video/neologism.mp4" data-background-video-loop="true"}
+
+```{r}
+neologisms <- read_csv("data/neologisms_import.csv")
+```
+
+
+Faulkner also concocts neologisms by combining words or adding a prefix to an existing word.
+
+```{r}
+# absalom_txt_markov <- absalom_txt %>%
+#    unnest_tokens(text, text, token="sentences") %>% 
+#   mutate(section = row_number() %/% 10) %>%
+#   filter(section > 0) %>%
+#   unnest_tokens(word, text) %>%
+#   filter(!word %in% stop_words$word)
+```
+
+
+```{r}
+# library(widyr)
+# absalom_txt_markov %>% 
+#   pairwise_count(word, section, sort = TRUE)
+# ```
+# ```{r}
+# word_cors <- absalom_txt_markov %>% 
+#   add_count(word) %>% 
+#   filter(n >= 20) %>% 
+#   select(-n) %>%
+#   pairwise_cor(word, section, sort = TRUE)
+```
+
+```{r}
+# library(ggraph)
+# word_cors %>%
+#   filter(correlation > .25) %>%
+#   as_tbl_graph() %>%
+#   ggraph(layout = "fr") +
+#   geom_edge_link(aes(edge_alpha = correlation), show.legend = FALSE) +
+#   geom_node_point(color = "lightblue", size = 5) +
+#   geom_node_text(aes(label = name), repel = TRUE)
+```
+## Parenthetical
+
+Perhaps the most unique feature of the text is Faulkner's use of parentheses.
+
+. . .
+There are 1278 total or 639 pairs.
+. . .
+These parentheses occur across the text, and also nest within each other three levels deep:
+
+- () Level 1
+- (()) Level 2
+- ((())) Level 3
+- (((()))) Level 4
+
+```{r parenthetical_import}
+parenthetical_all_staggered<- read_csv("data/parenthetical_all_staggered.csv")
+parenthetical_longest_break<- read_csv("data/parenthetical_longest_break.csv")
+chapter_index <- 
+read_csv("data/chapter_index.csv")
+```
+## Quentin
+
+The nestings offer a network of digressions, modifications, amplifications, and dead ends. They represent the constant search for words to tell the story of the Sutpen family.
+
+Appropriately, Quentin is burried deep within this nesting at level 4.
+
+```{r plot_parentheses, out.width="768px",  out.height="250px"}
+
+plot_parentheses <- plot_ly(
+  parenthetical_all_staggered,
+  x = ~ start,
+  y =  ~ depth,
+  name  = ~ depth,
+  type = 'scatter',
+  mode = 'lines+markers',
+  marker = list(size = 4),
+  line = list(width = 1, dash = "dot"),
+    width = 768,
+    height = 250
+)
+
+plot_parentheses <- plot_parentheses %>%
+  layout(
+    title = list(text = "Parentheses Nesting Levels in <i>Absalom, Absalom!</i>"),
+    xaxis = list(
+      gridwidth = 1,
+      zeroline = FALSE,
+      showline = FALSE,
+      tickmode = 'array',
+      tickvals = chapter_index$chapter_marker,
+      ticktext = chapter_index$chapter,
+      title = list(text = "Chapter")
+    ),
+    yaxis = list(
+      title = list(text = "Nesting Level"),
+      showgrid = FALSE,
+      zeroline = FALSE,
+      showline = FALSE,
+      linewidth = 0,
+      tickmode = 'array',
+      tickvals = c(0, 1, 2, 3, 4),
+      ticktext = c("Main Text", "1: ()", "2: (())", "3: ((()))", "4: (((())))")
+    ),
+    colorway = faulkner_colorway,
+    font = plot_font,
+    margin = m,
+    paper_bgcolor = faulkner_paperbackground,
+    plot_bgcolor = faulkner_plotcolor,
+    modebar = list(bgcolor = faulkner_paperbackground),
+    autosize = FALSE
+  )
+
+plot_parentheses <- plot_parentheses %>%
+  add_annotations(
+    x = parenthetical_longest_break$start,
+    y = parenthetical_longest_break$depth,
+    text = parenthetical_longest_break$sentence,
+    xref = "x",
+    yref = "y",
+    yshift = 15,
+    xanchor = "left",
+    showarrow = FALSE,
+    font = plot_font
+)
+
+plot_parentheses <-  plot_parentheses %>% 
+  config(
+    toImageButtonOptions = list(
+      format = "png",
+      width = 768,
+      height = 250
+    )
+  )
+
+plot_parentheses
+
+```
+
+## Faulkner's Language
+
+The complexity of Faulkner's language forces the reader to consider the meaning of every word, in every long sentence, throughout the entire work. One cannot pull at any thread in the novel without loosening others. The past existed as a reality but it can only be represented in and through language.

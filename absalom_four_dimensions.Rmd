@@ -1196,6 +1196,13 @@ It is rare that the typography of a text is remarkable, but here too *Absalom, A
 
 [^8]: This number exceeds that of the "fallible" manual count done by Fred Randel quite a bit. He arrived at 594 pairs, but does not have the benefit computational exactitude [@randelParenthesesFaulknerAbsalom1971 471].
 
+
+```{r}
+write_csv(parenthetical_all_staggered, "data/parenthetical_all_staggered.csv")
+write_csv(parenthetical_longest_break, "data/parenthetical_longest_break.csv")
+write_csv(chapter_index, "data/chapter_index.csv")
+```
+
 ```{r plot_parentheses, out.width="768px",  out.height="250px", fig.cap= "Figure 4: Snapshot of all parentheses in <i>Absalom, Absalom!</i> ordered by their level of nesting."}
 
 plot_parentheses <- plot_ly(
